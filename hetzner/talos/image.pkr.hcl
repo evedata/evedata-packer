@@ -52,9 +52,6 @@ locals {
   image_arm = var.image_url_arm != null ? var.image_url_arm : "https://factory.talos.dev/image/${var.talos_schematic_id}/${var.talos_version}/hcloud-arm64.raw.xz"
   image_x86 = var.image_url_x86 != null ? var.image_url_x86 : "https://factory.talos.dev/image/${var.talos_schematic_id}/${var.talos_version}/hcloud-amd64.raw.xz"
 
-  real_build_date     = var.build_date == "" ? var.build_date : formatdate("YYYYMMDD", timestamp())
-  real_build_timestamp = var.build_timestamp == "" ? var.build_timestamp : formatdate("YYYY-MM-DDTHH:MM:SSZ", timestamp())
-
   # Add local variables for inline shell commands
   download_image = "wget --timeout=5 --waitretry=5 --tries=5 --retry-connrefused --inet4-only -O /tmp/talos.raw.xz "
 
@@ -80,10 +77,10 @@ source "hcloud" "talos-arm" {
   server_type  = "cax11"
   ssh_username = "root"
 
-  snapshot_name   = "evedata-talos-${var.talos_version}-arm-${local.real_build_date}"
+  snapshot_name   = "evedata-talos-${var.talos_version}-arm-${var.build_date}"
   snapshot_labels = {
     build_id = var.build_id,
-    build_timestamp = local.real_build_timestamp,
+    build_timestamp = var.build_timestamp,
     os      = "talos",
     version = "${var.talos_version}",
     arch    = "arm",
@@ -99,10 +96,10 @@ source "hcloud" "talos-x86" {
   server_type  = "cx22"
   ssh_username = "root"
 
-  snapshot_name   = "evedata-talos-${var.talos_version}-x86-${local.real_build_date}"
+  snapshot_name   = "evedata-talos-${var.talos_version}-x86-${var.build_date}"
   snapshot_labels = {
     build_id = var.build_id,
-    build_timestamp = local.real_build_timestamp,
+    build_timestamp = var.build_timestamp,
     os      = "talos",
     version = "${var.talos_version}",
     arch    = "x86",
