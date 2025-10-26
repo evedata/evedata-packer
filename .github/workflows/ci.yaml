@@ -10,7 +10,8 @@ on:
   workflow_dispatch:
 
 jobs:
-  setup:
+  build-metadata:
+    name: Create Build Metadata
     runs-on: ubuntu-latest
     outputs:
       date: ${{ steps.date.outputs.date }}
@@ -24,7 +25,6 @@ jobs:
 
   hetzner-talos-schematic:
     name: Get Talos Schematic ID
-    needs: setup
     runs-on: ubuntu-latest
     outputs:
       talos_schematic_id: ${{ steps.get_schematic_id.outputs.talos_schematic_id }}
@@ -36,7 +36,7 @@ jobs:
         id: get_schematic_id
         working-directory: hetzner/talos
         run: |
-          SCHEMATIC_ID=$(curl -X POST --data-binary @schematic.yaml https://factory.talos.dev/schematics | jq -r '.[0].id')
+          SCHEMATIC_ID=$(curl -X POST --data-binary @schematic.yaml https://factory.talos.dev/schematics | jq -r '.id')
           echo "schematic_id=${SCHEMATIC_ID}" >> $GITHUB_OUTPUT
 
   hetzner-talos-hzl:
