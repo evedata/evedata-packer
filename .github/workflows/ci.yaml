@@ -139,52 +139,52 @@ jobs:
           HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
           TALOS_SCHEMATIC_ID: ${{ needs.hetzner-talos-schematic.outputs.talos_schematic_id }}
 
-  hetzner-talos-prd:
-    name: Build Talos Hetzner Image (Production)
-    environment: hetzner-prd
-    needs:
-      - build-metadata
-      - hetzner-talos-schematic
-    runs-on: ubuntu-latest
-    steps:
-      - name: Metadata
-        run: |
-          echo "Build Date: ${{ needs.build-metadata.outputs.date }}"
-          echo "Build Timestamp: ${{ needs.build-metadata.outputs.timestamp }}"
-          echo "Talos Schematic ID: ${{ needs.hetzner-talos-schematic.outputs.talos_schematic_id }}"
+  # hetzner-talos-prd:
+  #   name: Build Talos Hetzner Image (Production)
+  #   environment: hetzner-prd
+  #   needs:
+  #     - build-metadata
+  #     - hetzner-talos-schematic
+  #   runs-on: ubuntu-latest
+  #   steps:
+  #     - name: Metadata
+  #       run: |
+  #         echo "Build Date: ${{ needs.build-metadata.outputs.date }}"
+  #         echo "Build Timestamp: ${{ needs.build-metadata.outputs.timestamp }}"
+  #         echo "Talos Schematic ID: ${{ needs.hetzner-talos-schematic.outputs.talos_schematic_id }}"
 
-      - name: Checkout
-        uses: actions/checkout@v5
+  #     - name: Checkout
+  #       uses: actions/checkout@v5
 
-      - name: Setup `packer`
-        uses: hashicorp/setup-packer@main
-        id: setup
-        with:
-          version: "latest"
+  #     - name: Setup `packer`
+  #       uses: hashicorp/setup-packer@main
+  #       id: setup
+  #       with:
+  #         version: "latest"
 
-      - name: Initialize Packer
-        id: init
-        working-directory: hetzner/talos
-        run: "packer init ./image.pkr.hcl"
+  #     - name: Initialize Packer
+  #       id: init
+  #       working-directory: hetzner/talos
+  #       run: "packer init ./image.pkr.hcl"
 
-      - name: Validate Image
-        id: validate
-        working-directory: hetzner/talos
-        run: "packer validate ./image.pkr.hcl"
-        env:
-          BUILD_DATE: ${{ needs.build-metadata.outputs.date }}
-          BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
-          BUILD_TIMESTAMP: ${{ needs.build-metadata.outputs.timestamp }}
-          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
-          TALOS_SCHEMATIC_ID: ${{ needs.hetzner-talos-schematic.outputs.talos_schematic_id }}
+  #     - name: Validate Image
+  #       id: validate
+  #       working-directory: hetzner/talos
+  #       run: "packer validate ./image.pkr.hcl"
+  #       env:
+  #         BUILD_DATE: ${{ needs.build-metadata.outputs.date }}
+  #         BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
+  #         BUILD_TIMESTAMP: ${{ needs.build-metadata.outputs.timestamp }}
+  #         HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+  #         TALOS_SCHEMATIC_ID: ${{ needs.hetzner-talos-schematic.outputs.talos_schematic_id }}
 
-      - name: Build Image
-        if: github.event_name != 'pull_request'
-        working-directory: hetzner/talos
-        run: packer build -color=false -on-error=cleanup ./image.pkr.hcl
-        env:
-          BUILD_DATE: ${{ needs.build-metadata.outputs.date }}
-          BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
-          BUILD_TIMESTAMP: ${{ needs.build-metadata.outputs.timestamp }}
-          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
-          TALOS_SCHEMATIC_ID: ${{ needs.hetzner-talos-schematic.outputs.talos_schematic_id }}
+  #     - name: Build Image
+  #       if: github.event_name != 'pull_request'
+  #       working-directory: hetzner/talos
+  #       run: packer build -color=false -on-error=cleanup ./image.pkr.hcl
+  #       env:
+  #         BUILD_DATE: ${{ needs.build-metadata.outputs.date }}
+  #         BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
+  #         BUILD_TIMESTAMP: ${{ needs.build-metadata.outputs.timestamp }}
+  #         HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+  #         TALOS_SCHEMATIC_ID: ${{ needs.hetzner-talos-schematic.outputs.talos_schematic_id }}
