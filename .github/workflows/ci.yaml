@@ -137,6 +137,7 @@ jobs:
           BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
           BUILD_TIMESTAMP: ${{ needs.build-metadata.outputs.timestamp }}
           HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+          TALOS_SCHEMATIC_ID: ${{ needs.hetzner-talos-schematic.outputs.talos_schematic_id }}
 
   hetzner-talos-prd:
     name: Build Talos Hetzner Image (Production)
