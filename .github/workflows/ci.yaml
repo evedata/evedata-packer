@@ -43,7 +43,7 @@ jobs:
     name: Build Talos Hetzner Image (Horizontal)
     environment: hetzner-hzl
     needs:
-      - setup
+      - build-metadata
       - hetzner-talos-schematic
     runs-on: ubuntu-latest
     steps:
@@ -80,7 +80,7 @@ jobs:
     name: Build Talos Hetzner Image (Staging)
     environment: hetzner-stg
     needs:
-      - setup
+      - build-metadata
       - hetzner-talos-schematic
     runs-on: ubuntu-latest
     steps:
@@ -117,7 +117,7 @@ jobs:
     name: Build Talos Hetzner Image (Production)
     environment: hetzner-prd
     needs:
-      - setup
+      - build-metadata
       - hetzner-talos-schematic
     runs-on: ubuntu-latest
     steps:
