@@ -1,0 +1,151 @@
+name: CI
+
+on:
+  push:
+    branches:
+      - main
+  pull_request:
+    branches:
+      - main
+  workflow_dispatch:
+
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      date: ${{ steps.date.outputs.date }}
+      timestamp: ${{ steps.date.outputs.timestamp }}
+    steps:
+      - name: Get date
+        id: date
+        run: |
+          echo "date=$(date +'%Y%m%d')" >> $GITHUB_OUTPUT
+          echo "timestamp=$(date +'%Y%m%d%H%M%S')" >> $GITHUB_OUTPUT
+
+  hetzner-talos-schematic:
+    name: Get Talos Schematic ID
+    needs: setup
+    runs-on: ubuntu-latest
+    outputs:
+      talos_schematic_id: ${{ steps.get_schematic_id.outputs.talos_schematic_id }}
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Get Talos Schematic ID
+        id: get_schematic_id
+        working-directory: hetzner/talos
+        run: |
+          SCHEMATIC_ID=$(curl -X POST --data-binary @schematic.yaml https://factory.talos.dev/schematics | jq -r '.[0].id')
+          echo "schematic_id=${SCHEMATIC_ID}" >> $GITHUB_OUTPUT
+
+  hetzner-talos-hzl:
+    name: Build Talos Hetzner Image (Horizontal)
+    environment: hetzner-hzl
+    needs:
+      - setup
+      - hetzner-talos-schematic
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: "latest"
+
+      - name: Initialize Packer
+        id: init
+        working-directory: hetzner/talos
+        run: "packer init ./image.pkr.hcl"
+
+      - name: Validate Image
+        id: validate
+        working-directory: hetzner/talos
+        run: "packer validate ./image.pkr.hcl"
+
+      - name: Build Image
+        if: github.event_name != 'pull_request'
+        working-directory: hetzner/talos
+        run: packer build -color=false -on-error=abort ./image.pkr.hcl
+        env:
+          BUILD_DATE: ${{ needs.setup.outputs.date }}
+          BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
+          BUILD_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+
+  hetzner-talos-stg:
+    name: Build Talos Hetzner Image (Staging)
+    environment: hetzner-stg
+    needs:
+      - setup
+      - hetzner-talos-schematic
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: "latest"
+
+      - name: Initialize Packer
+        id: init
+        working-directory: hetzner/talos
+        run: "packer init ./image.pkr.hcl"
+
+      - name: Validate Image
+        id: validate
+        working-directory: hetzner/talos
+        run: "packer validate ./image.pkr.hcl"
+
+      - name: Build Image
+        if: github.event_name != 'pull_request'
+        working-directory: hetzner/talos
+        run: packer build -color=false -on-error=abort ./image.pkr.hcl
+        env:
+          BUILD_DATE: ${{ needs.setup.outputs.date }}
+          BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
+          BUILD_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
+
+  hetzner-talos-prd:
+    name: Build Talos Hetzner Image (Production)
+    environment: hetzner-prd
+    needs:
+      - setup
+      - hetzner-talos-schematic
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v5
+
+      - name: Setup `packer`
+        uses: hashicorp/setup-packer@main
+        id: setup
+        with:
+          version: "latest"
+
+      - name: Initialize Packer
+        id: init
+        working-directory: hetzner/talos
+        run: "packer init ./image.pkr.hcl"
+
+      - name: Validate Image
+        id: validate
+        working-directory: hetzner/talos
+        run: "packer validate ./image.pkr.hcl"
+
+      - name: Build Image
+        if: github.event_name != 'pull_request'
+        working-directory: hetzner/talos
+        run: packer build -color=false -on-error=abort ./image.pkr.hcl
+        env:
+          BUILD_DATE: ${{ needs.setup.outputs.date }}
+          BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
+          BUILD_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
