@@ -65,6 +65,11 @@ jobs:
         id: validate
         working-directory: hetzner/talos
         run: "packer validate ./image.pkr.hcl"
+        env:
+          BUILD_DATE: ${{ needs.setup.outputs.date }}
+          BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
+          BUILD_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
 
       - name: Build Image
         if: github.event_name != 'pull_request'
@@ -102,6 +107,11 @@ jobs:
         id: validate
         working-directory: hetzner/talos
         run: "packer validate ./image.pkr.hcl"
+        env:
+          BUILD_DATE: ${{ needs.setup.outputs.date }}
+          BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
+          BUILD_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
 
       - name: Build Image
         if: github.event_name != 'pull_request'
@@ -139,6 +149,11 @@ jobs:
         id: validate
         working-directory: hetzner/talos
         run: "packer validate ./image.pkr.hcl"
+        env:
+          BUILD_DATE: ${{ needs.setup.outputs.date }}
+          BUILD_ID: "run.id.${{ github.run_id }}.run.attempt.${{ github.run_attempt }}"
+          BUILD_TIMESTAMP: ${{ needs.setup.outputs.timestamp }}
+          HCLOUD_TOKEN: ${{ secrets.HCLOUD_TOKEN }}
 
       - name: Build Image
         if: github.event_name != 'pull_request'
